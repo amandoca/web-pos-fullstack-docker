@@ -26,6 +26,7 @@ export function AdminProductCard({
   onUpdateStock,
   onToggleAvailability,
 }: AdminProductCardProps) {
+  const productImageSrc = product.imageUrl || "/images/eat.png";
   const [draftStock, setDraftStock] = useState<string>(
     // O campo começa com o estoque atual do produto.
     function getInitialDraftStock() {
@@ -71,7 +72,7 @@ export function AdminProductCard({
   return (
     <article className="admin-product-card">
       <div className="admin-product-media">
-        <img src={product.imageUrl} alt={product.title} />
+        <img src={productImageSrc} alt={product.title} />
       </div>
 
       <div className="admin-product-body">

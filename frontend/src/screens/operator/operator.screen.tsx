@@ -14,9 +14,13 @@ const appConfig = getAppConfig();
 export function OperatorScreen() {
   const {
     activeCartView,
+    barcodeValue,
     categories,
     currentOrderLabel,
     errorMessage,
+    feedbackMessage,
+    feedbackType,
+    handleChangeBarcodeValue,
     handleCheckout,
     handleCloseProductModal,
     handleConfirmProduct,
@@ -29,6 +33,7 @@ export function OperatorScreen() {
     handleSelectCategory,
     handleSelectPaymentMethod,
     handleSelectProduct,
+    handleSubmitBarcodeSearch,
     handleToggleProductAddon,
     isCategoriesLoading,
     isCurrentCartView,
@@ -107,7 +112,58 @@ export function OperatorScreen() {
                   o fechamento no painel lateral.
                 </p>
               </div>
+
+              <form
+                className="operator-barcode-form"
+                onSubmit={function submitBarcodeSearch(event) {
+                  event.preventDefault();
+                  handleSubmitBarcodeSearch();
+                }}
+              >
+                <label
+                  className="operator-barcode-label"
+                  htmlFor="operator-barcode-input"
+                >
+                  Código de barras
+                </label>
+
+                <div className="operator-barcode-controls">
+                  <input
+                    id="operator-barcode-input"
+                    className="operator-barcode-input"
+                    type="text"
+                    inputMode="numeric"
+                    value={barcodeValue}
+                    disabled={isProductsLoading}
+                    onChange={function changeBarcodeValue(event) {
+                      handleChangeBarcodeValue(event.currentTarget.value);
+                    }}
+                    placeholder="Leia ou digite o código"
+                  />
+
+                  <button
+                    className="operator-primary-button"
+                    type="submit"
+                    disabled={isProductsLoading}
+                  >
+                    Buscar
+                  </button>
+                </div>
+
+                <p className="operator-barcode-hint">
+                  Aceita digitação manual ou leitor físico como teclado.
+                </p>
+              </form>
             </header>
+
+            {feedbackMessage ? (
+              <div
+                className={`operator-feedback${feedbackType === "error" ? " is-error" : " is-success"}`}
+                role="status"
+              >
+                {feedbackMessage}
+              </div>
+            ) : null}
 
             <ProductGrid
               products={products}

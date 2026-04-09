@@ -1,4 +1,4 @@
-import type { Product } from "../../domain/product/product.types";
+import type { CreateProductInput, Product } from "../../domain/product/product.types";
 import {
   getAllowedAddonsByProductId,
   getCategories,
@@ -6,6 +6,7 @@ import {
   getProducts,
   getSizesByProductId,
   getAddons,
+  createProduct,
   saveProducts,
 } from "../../data/repositories/products.repository";
 
@@ -37,6 +38,11 @@ export function getAllowedAddonsByProductIdAction(productId: number) {
 // Busca os tamanhos cadastrados para um produto específico.
 export function getSizesByProductIdAction(productId: number) {
   return getSizesByProductId(productId);
+}
+
+// Cria um novo produto no catálogo.
+export function createProductAction(input: CreateProductInput) {
+  return createProduct(input);
 }
 
 // Salva a lista de produtos já atualizada.

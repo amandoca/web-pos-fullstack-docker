@@ -2,6 +2,7 @@ import "./admin-screen.css";
 
 import { getAppConfig } from "../../shared/config/app-config";
 
+import { ProductCreateForm } from "./components/ProductCreateForm";
 import { AdminSidebar } from "./components/AdminSidebar";
 import { AdminProductGrid } from "./components/AdminProductGrid";
 import { CancelOrderDialog } from "./components/CancelOrderDialog";
@@ -20,14 +21,18 @@ export function AdminScreen() {
     sectionTitle,
     sectionDescription,
     isProductsTab,
+    isCreateProductTab,
+    isOrdersTab,
     isLoading,
     isError,
+    isCreatingProduct,
     updatingProductId,
     updatingAvailabilityId,
     isCancelingOrder,
     selectedOrderForCancel,
     feedbackMessage,
     feedbackType,
+    handleCreateProduct,
     handleUpdateStock,
     handleUpdateAvailability,
     handleOpenCancelOrder,
@@ -95,23 +100,32 @@ export function AdminScreen() {
             {/* Exibe erro quando a busca da aba atual falha. */}
             {isError ? (
               <div className="admin-feedback is-error">
-                Nao foi possivel carregar {sectionTitle.toLowerCase()} agora.
+                Não foi possível carregar {sectionTitle.toLowerCase()} agora.
               </div>
             ) : null}
 
             {/* Na aba de produtos, mostramos a grade com estoque e disponibilidade. */}
             {!isLoading && !isError && isProductsTab ? (
-              <AdminProductGrid
-                products={products}
-                updatingProductId={updatingProductId}
-                updatingAvailabilityId={updatingAvailabilityId}
-                onUpdateStock={handleUpdateStock}
-                onToggleAvailability={handleUpdateAvailability}
+              <div className="admin-products-layout">
+                <AdminProductGrid
+                  products={products}
+                  updatingProductId={updatingProductId}
+                  updatingAvailabilityId={updatingAvailabilityId}
+                  onUpdateStock={handleUpdateStock}
+                  onToggleAvailability={handleUpdateAvailability}
+                />
+              </div>
+            ) : null}
+
+            {!isLoading && !isError && isCreateProductTab ? (
+              <ProductCreateForm
+                isSubmitting={isCreatingProduct}
+                onSubmit={handleCreateProduct}
               />
             ) : null}
 
             {/* Na aba de pedidos, mostramos a lista pronta para cancelamento. */}
-            {!isLoading && !isError && !isProductsTab ? (
+            {!isLoading && !isError && isOrdersTab ? (
               <OrdersPanel
                 orders={orders}
                 isCancelingOrder={isCancelingOrder}

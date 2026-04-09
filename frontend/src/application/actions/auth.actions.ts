@@ -6,11 +6,8 @@ import {
 } from "../../data/repositories/auth.repository";
 
 // Encaminha a tentativa de login para a camada de dados.
-export async function loginAction(
-  username: string,
-  password: string,
-): Promise<User> {
-  return login(username, password);
+export async function loginAction(): Promise<User> {
+  return login();
 }
 
 // Executa a saída da sessão atual.

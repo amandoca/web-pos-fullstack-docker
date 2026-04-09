@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 
 import {
+  getFirebaseAuthorizationConfig,
+  getFirebaseEnvironmentStatus,
+  isFirebaseConfigured,
+} from "../../../application/firebase";
+import {
   loginRequest,
   logoutRequest,
   restoreSessionRequest,
@@ -15,11 +20,13 @@ import { type RootState } from "../../../application/store/root-reducer";
 export function useAuth() {
   const dispatch = useAppDispatch();
   const auth = useAppSelector((state: RootState) => state.auth);
+  const firebaseEnvironmentStatus = getFirebaseEnvironmentStatus();
+  const firebaseAuthorizationConfig = getFirebaseAuthorizationConfig();
 
   // Dispara a action de login que será tratada pela saga.
   const login = useCallback(
-    function login(username: string, password: string) {
-      dispatch(loginRequest({ username, password }));
+    function login() {
+      dispatch(loginRequest());
     },
     [dispatch],
   );
@@ -45,6 +52,10 @@ export function useAuth() {
     isAuthenticated: auth.isAuthenticated,
     isLoading: auth.isLoading,
     errorMessage: auth.errorMessage,
+    hasAuthorizedEmailsConfigured:
+      firebaseAuthorizationConfig.hasRoleConfiguration,
+    isFirebaseConfigured: isFirebaseConfigured(),
+    missingFirebaseKeys: firebaseEnvironmentStatus.missingKeys,
     login,
     logout,
     restoreSession,

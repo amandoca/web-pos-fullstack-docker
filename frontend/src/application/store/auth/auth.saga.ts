@@ -17,13 +17,9 @@ import {
 } from "./auth.slice";
 
 // Orquestra o login e atualiza o Redux com sucesso ou erro.
-function* handleLogin(action: ReturnType<typeof loginRequest>) {
+function* handleLogin() {
   try {
-    const user: Awaited<ReturnType<typeof loginAction>> = yield call(
-      loginAction,
-      action.payload.username,
-      action.payload.password,
-    );
+    const user: Awaited<ReturnType<typeof loginAction>> = yield call(loginAction);
 
     yield put(loginSuccess(user));
   } catch (error) {

@@ -19,7 +19,7 @@ O cliente final não interage com o sistema.
 
 ## RN-OP-01 — Autenticação
 
-O operador deve realizar login para acessar o sistema.
+O operador deve realizar login com **Google via Firebase Authentication** para acessar o sistema.
 
 ---
 
@@ -30,7 +30,10 @@ O sistema deve exibir produtos contendo:
 - título
 - descrição
 - preço base
-- imagem (fornecida pelo front-end)
+- imagem do produto
+- código de barras, quando cadastrado
+
+Os produtos exibidos no sistema devem ser lidos da coleção `products` no **Cloud Firestore**.
 
 ---
 
@@ -59,7 +62,12 @@ Categorias fixas:
 
 ## RN-OP-05 — Seleção de Produto
 
-Ao selecionar um produto, o sistema deve abrir um **modal de configuração** antes da adição ao carrinho.
+Ao selecionar um produto, o sistema deve abrir um **modal de configuração** antes da adição ao carrinho quando o item possuir:
+
+- tamanhos
+- adicionais permitidos
+
+Se o produto não possuir configuração adicional, ele pode ser adicionado diretamente ao carrinho.
 
 ---
 
@@ -139,11 +147,24 @@ A taxa deve ser calculada e exibida antes da finalização.
 
 ## RN-OP-13 — Forma de Pagamento
 
-- Deve ser selecionada a partir de uma **lista fixa**
+- Deve ser selecionada a partir de uma lista cadastrada em `payment-methods`
+- A lista deve ser lida do **Cloud Firestore**
 
 ---
 
-## RN-OP-14 — Finalização do Pedido
+## RN-OP-14 — Busca por Código de Barras
+
+- O POS deve permitir localizar produto por **código de barras**
+- A busca pode ocorrer por:
+  - digitação manual
+  - leitor físico que funcione como teclado
+- Ao localizar um produto:
+  - se não houver configuração adicional, o item pode entrar direto no carrinho
+  - se houver tamanho ou adicionais, o modal de configuração deve ser aberto
+
+---
+
+## RN-OP-15 — Finalização do Pedido
 
 O pedido só pode ser finalizado se:
 
@@ -154,12 +175,13 @@ O pedido só pode ser finalizado se:
 Ao finalizar:
 
 - estoque é decrementado
-- pedido é registrado
+- pedido é registrado na coleção `orders`
 - carrinho é limpo
+- os dados devem ser persistidos no **Cloud Firestore**
 
 ---
 
-## RN-OP-15 — Restrições
+## RN-OP-16 — Restrições
 
 Não é permitido:
 
@@ -169,7 +191,7 @@ Não é permitido:
 
 ---
 
-## RN-OP-16 — Cancelamento de Pedido
+## RN-OP-17 — Cancelamento de Pedido
 
 - Pedidos podem ser cancelados **somente por um administrador**
 - Operadores não possuem permissão para cancelar pedidos
@@ -188,7 +210,7 @@ Ao cancelar um pedido:
 
 ## RN-ADM-01 — Autenticação
 
-O administrador deve realizar login.
+O administrador deve realizar login com **Google via Firebase Authentication**.
 
 ---
 
@@ -201,7 +223,8 @@ Cada produto deve exibir:
 - descrição
 - estoque (editável)
 - disponibilidade (switch: sim/não)
-- botões: **Editar** e **Cancelar**
+
+Os produtos exibidos no painel administrativo devem ser lidos da coleção `products` no **Cloud Firestore**.
 
 ---
 
@@ -222,16 +245,26 @@ Regras:
 
 ---
 
-## RN-ADM-05 — Edição de Produto
+## RN-ADM-05 — Cadastro de Produto
 
-O administrador pode editar:
+O administrador pode cadastrar produto com os seguintes campos:
 
 - título
 - descrição
 - preço
 - categoria
+- estoque
+- disponibilidade
+- imagem
+- código de barras
 - tamanhos disponíveis
-- adicionais disponíveis
+- adicionais permitidos
+
+Regras:
+
+- a imagem do produto deve ser enviada para o **Firebase Storage**
+- a URL final da imagem deve ser salva em `products.imageUrl`
+- o produto deve ser persistido no **Cloud Firestore**
 
 ---
 
@@ -239,9 +272,13 @@ O administrador pode editar:
 
 Somente o administrador pode:
 
-- alterar estoque
-- alterar disponibilidade
-- editar produtos
+- cadastrar produto
+- alterar disponibilidade manualmente
+- cancelar pedidos
+
+Observação:
+
+- no fluxo atual, o operador também participa da escrita em `products` durante o checkout, pois a baixa de estoque ocorre no frontend ao concluir a venda
 
 ---
 
@@ -273,9 +310,9 @@ Perfis do sistema:
 
 ## RN-GER-02 — Sessão
 
-- Login manual
+- Login com Google
 - Logout manual
-- Sessão longa (não expira automaticamente)
+- Sessão restaurável pelo Firebase Authentication
 
 ---
 
@@ -300,6 +337,8 @@ Perfis do sistema:
 
 - Estoque nunca pode ser negativo
 - Não é permitido venda sem estoque
+- Ao concluir pedido, o estoque deve ser decrementado
+- Ao cancelar pedido, o estoque deve ser restaurado
 
 ---
 
@@ -307,13 +346,31 @@ Perfis do sistema:
 
 - Pedido finalizado não pode ser alterado
 - Pedido só pode ser cancelado por um administrador
+- O pedido deve registrar data de criação, atualização e cancelamento quando aplicável
 
 ---
 
-## RN-GER-07 — Taxa
+## RN-GER-07 — Persistência
+
+- Usuários devem ser persistidos em `users`
+- Produtos devem ser persistidos em `products`
+- Pedidos devem ser persistidos em `orders`
+- Categorias, formas de pagamento, adicionais e tamanhos devem ser lidos do **Cloud Firestore**
+- Imagens dos produtos devem ser armazenadas no **Firebase Storage**
+
+---
+
+## RN-GER-08 — Taxa
 
 - Taxa fixa de **6%**
 - Aplicada sobre o subtotal
 - Exibida antes da finalização
+
+---
+
+## RN-GER-09 — Datas
+
+- Campos de data em `users`, `products` e `orders` devem usar `timestamp` no Firestore
+- A aplicação deve aceitar leitura de `timestamp` e também manter compatibilidade com registros antigos em texto durante a transição
 
 ---

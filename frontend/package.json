@@ -7,6 +7,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "preinstall": "node ./scripts/check-node-version.mjs",
     "dev": "vite --configLoader runner",
     "build": "tsc -b && vite build --configLoader runner",
     "lint": "eslint .",
@@ -15,6 +16,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "@tanstack/react-query": "^5.95.2",
+    "firebase": "^12.11.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-redux": "^9.2.0",

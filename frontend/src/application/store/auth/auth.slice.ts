@@ -21,16 +21,10 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginRequest: {
-      // Marca a tela como carregando antes da saga tentar o login.
-      reducer(state) {
-        state.isLoading = true;
-        state.errorMessage = null;
-      },
-      // Empacota usuário e senha no formato esperado pela action.
-      prepare(payload: { username: string; password: string }) {
-        return { payload };
-      },
+    // Marca a tela como carregando antes da saga tentar o login.
+    loginRequest(state) {
+      state.isLoading = true;
+      state.errorMessage = null;
     },
 
     // Salva o usuário autenticado quando o login funciona.

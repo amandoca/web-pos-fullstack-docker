@@ -9,13 +9,11 @@ const appConfig = getAppConfig();
 // Renderiza a tela de entrada do sistema.
 export function LoginScreen() {
   const {
-    username,
-    password,
+    configurationMessage,
     isLoading,
     errorMessage,
-    handleUsernameChange,
-    handlePasswordChange,
-    handleSubmit,
+    handleGoogleLogin,
+    loginHintMessage,
   } = useLoginScreen();
 
   return (
@@ -36,32 +34,15 @@ export function LoginScreen() {
 
             <div className="login-copy">
               <h1>Acesso ao sistema</h1>
+              <p>Entre com sua conta Google para acessar o WEB POS.</p>
             </div>
 
-            <form className="login-form" onSubmit={handleSubmit}>
-              <label className="login-field">
-                <span>Usuário</span>
-                <input
-                  type="text"
-                  name="username"
-                  autoComplete="username"
-                  value={username}
-                  onChange={handleUsernameChange}
-                  placeholder="Digite seu usuário"
-                />
-              </label>
+            <section className="login-form" aria-label="Acesso com Google">
+              <p className="login-hint">{loginHintMessage}</p>
 
-              <label className="login-field">
-                <span>Senha</span>
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  placeholder="Digite sua senha"
-                />
-              </label>
+              {configurationMessage ? (
+                <p className="login-warning">{configurationMessage}</p>
+              ) : null}
 
               {errorMessage ? (
                 <p className="login-error">{errorMessage}</p>
@@ -69,12 +50,13 @@ export function LoginScreen() {
 
               <button
                 className="login-submit"
-                type="submit"
-                disabled={isLoading}
+                type="button"
+                disabled={isLoading || Boolean(configurationMessage)}
+                onClick={handleGoogleLogin}
               >
-                {isLoading ? "Entrando..." : "Entrar"}
+                {isLoading ? "Conectando..." : "Entrar com Google"}
               </button>
-            </form>
+            </section>
           </section>
 
           <aside className="login-visual" aria-hidden="true">

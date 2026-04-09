@@ -1,37 +1,40 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
-
 import { useAuth } from "../../features/auth/hooks/useAuth";
 
-// Controla os campos e o envio da tela de login.
+function buildLoginHintMessage(hasFirebaseRoleConfiguration: boolean) {
+  if (!hasFirebaseRoleConfiguration) {
+    return "Defina os e-mails autorizados antes de liberar o acesso.";
+  }
+
+  return "O acesso usa o cadastro do usuario e os e-mails autorizados servem como liberacao inicial.";
+}
+
+// Controla os feedbacks e a acao principal da tela de login.
 export function useLoginScreen() {
-  const { login, isLoading, errorMessage } = useAuth();
+  const {
+    errorMessage,
+    hasAuthorizedEmailsConfigured,
+    isFirebaseConfigured,
+    isLoading,
+    login,
+    missingFirebaseKeys,
+  } = useAuth();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const configurationMessage = isFirebaseConfigured
+    ? null
+    : `Firebase nao configurado. Variaveis ausentes: ${missingFirebaseKeys.join(", ")}.`;
+  const loginHintMessage = buildLoginHintMessage(
+    hasAuthorizedEmailsConfigured,
+  );
 
-  // Atualiza o valor digitado no campo de usuário.
-  function handleUsernameChange(event: ChangeEvent<HTMLInputElement>) {
-    setUsername(event.target.value);
-  }
-
-  // Atualiza o valor digitado no campo de senha.
-  function handlePasswordChange(event: ChangeEvent<HTMLInputElement>) {
-    setPassword(event.target.value);
-  }
-
-  // Impede o recarregamento da página e tenta fazer login.
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    login(username, password);
+  function handleGoogleLogin() {
+    login();
   }
 
   return {
-    username,
-    password,
+    configurationMessage,
     isLoading,
     errorMessage,
-    handleUsernameChange,
-    handlePasswordChange,
-    handleSubmit,
+    handleGoogleLogin,
+    loginHintMessage,
   };
 }

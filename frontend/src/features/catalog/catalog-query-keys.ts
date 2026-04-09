@@ -12,6 +12,9 @@ export const catalogQueryKeys = {
   paymentMethods() {
     return ["payment-methods"] as const;
   },
+  addonsList() {
+    return ["addons-list"] as const;
+  },
   addons(productId: number) {
     return ["addons", productId] as const;
   },

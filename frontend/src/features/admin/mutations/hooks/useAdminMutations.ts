@@ -1,13 +1,21 @@
+import type { CreateProductSubmission } from "../../../../domain/product/product.types";
 import { useCancelOrderMutation } from "./useCancelOrderMutation";
+import { useCreateProductMutation } from "./useCreateProductMutation";
 import { useUpdateProductAvailabilityMutation } from "./useUpdateProductAvailabilityMutation";
 import { useUpdateProductStockMutation } from "./useUpdateProductStockMutation";
 
 // Reúne as mutações usadas pela tela de admin.
 export function useAdminMutations() {
+  const createProductMutation = useCreateProductMutation();
   const updateProductStockMutation = useUpdateProductStockMutation();
   const updateProductAvailabilityMutation =
     useUpdateProductAvailabilityMutation();
   const cancelOrderMutation = useCancelOrderMutation();
+
+  // Cria um novo produto no catálogo.
+  async function createProduct(input: CreateProductSubmission) {
+    await createProductMutation.mutateAsync(input);
+  }
 
   // Atualiza o estoque e espera a mutation terminar para a tela reagir.
   async function updateStock(productId: number, stock: number) {
@@ -28,9 +36,11 @@ export function useAdminMutations() {
   }
 
   return {
+    createProduct,
     updateStock,
     updateAvailability,
     cancelOrder,
+    isCreatingProduct: createProductMutation.isPending,
     isCancelingOrder: cancelOrderMutation.isPending,
   };
 }

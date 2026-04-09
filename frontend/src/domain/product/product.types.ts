@@ -46,4 +46,23 @@ export interface Product {
   isAvailable: boolean;
   hasSizes: boolean;
   addonIds: number[];
+  barcode?: string;
+}
+
+export interface CreateProductInput {
+  addonIds: number[];
+  barcode: string;
+  basePrice: number;
+  categoryId: number;
+  description: string;
+  hasSizes: boolean;
+  imageUrl: string;
+  isAvailable: boolean;
+  stock: number;
+  title: string;
+}
+
+export interface CreateProductSubmission {
+  imageFile: File | null;
+  product: CreateProductInput;
 }

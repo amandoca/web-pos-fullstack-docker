@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 
-import { buildCartSummary } from "../../domain/cart/cart.rules";
+import {
+  buildCartSummary,
+  createAddCartItemPayload,
+} from "../../domain/cart/cart.rules";
 import type {
   Addon,
   Category,
@@ -16,8 +19,17 @@ import { useOperatorProducts } from "../../features/operator/catalog/hooks/useOp
 import { useCheckout } from "../../features/operator/checkout/hooks/useCheckout";
 import { useOperatorOrderHistory } from "../../features/operator/orders/hooks/useOperatorOrderHistory";
 import { useProductSelection } from "../../features/operator/product-selection/hooks/useProductSelection";
+import { useFeedback } from "../../shared/hooks/useFeedback";
 
 const ORDER_IN_PROGRESS_LABEL = "Pedido em andamento";
+
+function normalizeBarcode(rawValue: string): string {
+  return rawValue.replace(/\s+/g, "").trim();
+}
+
+function requiresProductConfiguration(product: Product): boolean {
+  return product.hasSizes || product.addonIds.length > 0;
+}
 
 // Monta o texto mostrado acima do carrinho atual.
 function formatCurrentOrderLabel(
@@ -48,11 +60,13 @@ export function useOperatorScreen() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeCartView, setActiveCartView] =
     useState<OperatorCartView>("current");
+  const [barcodeValue, setBarcodeValue] = useState("");
   const [productModalErrorMessage, setProductModalErrorMessage] = useState<
     string | null
   >(null);
 
   const productSelection = useProductSelection({ product: selectedProduct });
+  const { feedbackMessage, feedbackType, showFeedback } = useFeedback();
 
   // Filtra os produtos de acordo com a categoria selecionada.
   const products = useMemo(
@@ -99,6 +113,74 @@ export function useOperatorScreen() {
   function handleSelectProduct(product: Product) {
     setProductModalErrorMessage(null);
     setSelectedProduct(product);
+  }
+
+  // Atualiza o campo que recebe digitação manual ou leitor físico.
+  function handleChangeBarcodeValue(value: string) {
+    setBarcodeValue(value);
+  }
+
+  // Busca o produto pelo código de barras e reaproveita o fluxo de seleção.
+  function handleSubmitBarcodeSearch() {
+    const normalizedBarcode = normalizeBarcode(barcodeValue);
+
+    if (!normalizedBarcode) {
+      showFeedback("Digite ou leia um código de barras.", "error");
+      return;
+    }
+
+    const matchedProduct = productsQuery.products.find(function findProduct(
+      product,
+    ) {
+      return normalizeBarcode(product.barcode ?? "") === normalizedBarcode;
+    });
+
+    if (!matchedProduct) {
+      showFeedback("Produto não encontrado para o código informado.", "error");
+      return;
+    }
+
+    const matchedCategory = categoriesQuery.categories.find(
+      function findCategory(category) {
+        return category.id === matchedProduct.categoryId;
+      },
+    );
+
+    if (matchedCategory) {
+      setSelectedCategory(matchedCategory);
+    }
+
+    setBarcodeValue("");
+
+    if (requiresProductConfiguration(matchedProduct)) {
+      handleSelectProduct(matchedProduct);
+      showFeedback(
+        "Produto encontrado. Escolha as opções para continuar.",
+        "success",
+      );
+      return;
+    }
+
+    try {
+      const cartItemPayload = createAddCartItemPayload({
+        product: matchedProduct,
+        quantity: 1,
+        selectedAddons: [],
+        selectedSizeName: null,
+        totalPrice: matchedProduct.basePrice,
+        unitPrice: matchedProduct.basePrice,
+      });
+
+      cart.addItem(cartItemPayload);
+      showFeedback(`${matchedProduct.title} adicionado ao carrinho.`, "success");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível adicionar o produto.";
+
+      showFeedback(message, "error");
+    }
   }
 
   // Fecha o modal e limpa a seleção temporária do produto.
@@ -169,7 +251,11 @@ export function useOperatorScreen() {
     activeCartView,
     categories: categoriesQuery.categories,
     currentOrderLabel,
+    barcodeValue,
     errorMessage: checkout.errorMessage,
+    feedbackMessage,
+    feedbackType,
+    handleChangeBarcodeValue,
     handleCheckout,
     handleCloseProductModal,
     handleConfirmProduct,
@@ -182,6 +268,7 @@ export function useOperatorScreen() {
     handleSelectCategory,
     handleSelectPaymentMethod,
     handleSelectProduct,
+    handleSubmitBarcodeSearch,
     handleToggleProductAddon,
     isCategoriesLoading: categoriesQuery.isLoading,
     isCurrentCartView,

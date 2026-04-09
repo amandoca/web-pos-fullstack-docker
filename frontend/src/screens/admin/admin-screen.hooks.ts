@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import type { CreateProductSubmission } from "../../domain/product/product.types";
 import type { Order } from "../../domain/order/order.types";
 import { useAdminCatalog } from "../../features/admin/catalog/hooks/useAdminCatalog";
 import { useAdminMutations } from "../../features/admin/mutations/hooks/useAdminMutations";
@@ -7,7 +8,7 @@ import { useAdminOrders } from "../../features/admin/orders/hooks/useAdminOrders
 import { useAuth } from "../../features/auth/hooks/useAuth";
 import { useFeedback } from "../../shared/hooks/useFeedback";
 
-type AdminTab = "products" | "orders";
+type AdminTab = "products" | "create-product" | "orders";
 
 // Reúne o estado e as ações da tela administrativa.
 export function useAdminScreen() {
@@ -32,18 +33,39 @@ export function useAdminScreen() {
     isLoading: isLoadingOrders,
     isError: isErrorOrders,
   } = useAdminOrders();
-  const { updateStock, updateAvailability, cancelOrder, isCancelingOrder } =
-    useAdminMutations();
+  const {
+    createProduct,
+    updateStock,
+    updateAvailability,
+    cancelOrder,
+    isCancelingOrder,
+    isCreatingProduct,
+  } = useAdminMutations();
   const { feedbackMessage, feedbackType, showFeedback } = useFeedback();
 
   const isProductsTab = activeTab === "products";
-  const sectionTitle = isProductsTab ? "Produtos" : "Pedidos";
+  const isCreateProductTab = activeTab === "create-product";
+  const isOrdersTab = activeTab === "orders";
+  const sectionTitle = isProductsTab
+    ? "Produtos"
+    : isCreateProductTab
+      ? "Cadastrar produto"
+      : "Pedidos";
   const sectionDescription = isProductsTab
     ? "Atualize estoque e disponibilidade sem perder o contexto visual dos itens."
-    : "Acompanhe os pedidos recentes e execute cancelamentos.";
-  const sectionCount = isProductsTab ? products.length : orders.length;
-  const isLoading = isProductsTab ? isLoadingProducts : isLoadingOrders;
-  const isError = isProductsTab ? isErrorProducts : isErrorOrders;
+    : isCreateProductTab
+      ? "Preencha os dados básicos do novo produto."
+      : "Acompanhe os pedidos recentes e execute cancelamentos.";
+  const isLoading = isProductsTab
+    ? isLoadingProducts
+    : isOrdersTab
+      ? isLoadingOrders
+      : false;
+  const isError = isProductsTab
+    ? isErrorProducts
+    : isOrdersTab
+      ? isErrorOrders
+      : false;
 
   // Troca a aba principal entre produtos e pedidos.
   function handleSelectTab(tab: AdminTab) {
@@ -81,6 +103,17 @@ export function useAdminScreen() {
     }
   }
 
+  // Cadastra um novo produto e devolve feedback para a UI.
+  async function handleCreateProduct(input: CreateProductSubmission) {
+    try {
+      await createProduct(input);
+      showFeedback("Produto cadastrado com sucesso.", "success");
+    } catch {
+      showFeedback("Erro ao cadastrar produto.", "error");
+      throw new Error("Não foi possível cadastrar o produto.");
+    }
+  }
+
   // Abre o diálogo de cancelamento com o pedido escolhido.
   function handleOpenCancelOrder(order: Order) {
     setSelectedOrderForCancel(order);
@@ -113,16 +146,19 @@ export function useAdminScreen() {
     orders,
     sectionTitle,
     sectionDescription,
-    sectionCount,
     isProductsTab,
+    isCreateProductTab,
+    isOrdersTab,
     isLoading,
     isError,
+    isCreatingProduct,
     updatingProductId,
     updatingAvailabilityId,
     isCancelingOrder,
     selectedOrderForCancel,
     feedbackMessage,
     feedbackType,
+    handleCreateProduct,
     handleUpdateStock,
     handleUpdateAvailability,
     handleOpenCancelOrder,

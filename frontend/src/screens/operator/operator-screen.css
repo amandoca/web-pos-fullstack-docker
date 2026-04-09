@@ -155,6 +155,63 @@
   line-height: 1.5;
 }
 
+.operator-barcode-form {
+  min-width: min(360px, 100%);
+  display: grid;
+  gap: 10px;
+}
+
+.operator-barcode-label {
+  color: var(--operator-ink);
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.operator-barcode-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.operator-barcode-input {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 16px;
+  border: 1px solid var(--operator-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--operator-ink);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.operator-barcode-hint {
+  margin: 0;
+  color: var(--operator-muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.operator-feedback {
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid var(--operator-border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--operator-muted);
+}
+
+.operator-feedback.is-success {
+  color: #166534;
+  background: linear-gradient(180deg, rgba(236, 253, 245, 0.98), rgba(220, 252, 231, 0.96));
+  border-color: rgba(34, 197, 94, 0.28);
+}
+
+.operator-feedback.is-error {
+  color: #b42318;
+  background: linear-gradient(180deg, rgba(254, 242, 242, 0.98), rgba(254, 226, 226, 0.96));
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
 .operator-toolbar-stats {
   display: flex;
   flex-wrap: wrap;
@@ -1035,6 +1092,15 @@
 
   .operator-toolbar {
     flex-direction: column;
+  }
+
+  .operator-barcode-form,
+  .operator-barcode-controls {
+    width: 100%;
+  }
+
+  .operator-barcode-controls {
+    grid-template-columns: 1fr;
   }
 
   .operator-toolbar-stats,

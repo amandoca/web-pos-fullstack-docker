@@ -9,6 +9,7 @@ interface ProductCardProps {
 // Mostra um produto clicável no catálogo do operador.
 export function ProductCard({ product, onSelectProduct }: ProductCardProps) {
   const isUnavailable = !product.isAvailable || product.stock <= 0;
+  const productImageSrc = product.imageUrl || "/images/eat.png";
 
   // Abre o fluxo de configuração do produto escolhido.
   function handleSelectProduct() {
@@ -20,7 +21,7 @@ export function ProductCard({ product, onSelectProduct }: ProductCardProps) {
       className={`operator-product-card${isUnavailable ? " is-unavailable" : ""}`}
     >
       <div className="operator-product-media">
-        <img src={product.imageUrl} alt={product.title} />
+        <img src={productImageSrc} alt={product.title} />
 
         {isUnavailable ? (
           <div className="operator-product-unavailable">Indisponível</div>

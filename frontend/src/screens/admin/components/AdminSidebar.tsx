@@ -3,10 +3,10 @@ import { getAppConfig } from "../../../shared/config/app-config";
 const appConfig = getAppConfig();
 
 interface AdminSidebarProps {
-  activeTab: "products" | "orders";
+  activeTab: "products" | "create-product" | "orders";
   productsCount: number;
   ordersCount: number;
-  onChangeTab: (tab: "products" | "orders") => void;
+  onChangeTab: (tab: "products" | "create-product" | "orders") => void;
   onLogout: () => void;
 }
 
@@ -21,6 +21,11 @@ export function AdminSidebar({
   // Leva o admin para a área de produtos.
   function handleSelectProductsTab() {
     onChangeTab("products");
+  }
+
+  // Leva o admin para a área de cadastro de produto.
+  function handleSelectCreateProductTab() {
+    onChangeTab("create-product");
   }
 
   // Leva o admin para a área de pedidos.
@@ -49,6 +54,17 @@ export function AdminSidebar({
         >
           <img src="/images/admin-icons/supplies.png" alt="" />
           <span className="admin-nav-label">Produtos</span>
+        </button>
+
+        <button
+          className={`admin-nav-button${activeTab === "create-product" ? " is-active" : ""}`}
+          type="button"
+          aria-label="Cadastrar produto"
+          title="Cadastrar novo produto"
+          onClick={handleSelectCreateProductTab}
+        >
+          <img src="/images/admin-icons/register-product.png" alt="" />
+          <span className="admin-nav-label">Cadastrar produto</span>
         </button>
 
         <button
