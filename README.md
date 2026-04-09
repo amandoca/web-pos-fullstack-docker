@@ -13,7 +13,7 @@ Uma prévia das principais interfaces do sistema:
       <br />
       <img src="./docs/screenshots/login.png" alt="Tela de login da aplicação" width="100%" />
     </td>
-    <td align="center" width="50%">markdow
+    <td align="center" width="50%">
       <strong>Painel do administrador</strong>
       <br />
       <img src="./docs/screenshots/admin-dashboard.png" alt="Painel do administrador" width="100%" />
